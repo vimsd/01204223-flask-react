@@ -8,6 +8,19 @@ const mockResponse = (body, ok = true) =>
     json: () => Promise.resolve(body),
 });
 
+const todoItem1 = { id: 1, title: 'First todo', done: false, comments: [] };
+const todoItem2 = { id: 2, title: 'Second todo', done: false, comments: [
+  { id: 1, message: 'First comment' },
+  { id: 2, message: 'Second comment' },
+] };
+
+
+const originalTodoList = [
+  todoItem1,
+  todoItem2,
+]
+
+
 describe('App', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn());
@@ -20,15 +33,8 @@ describe('App', () => {
 
   it('renders correctly', async () => {
     global.fetch.mockImplementationOnce(() =>
-      mockResponse([
-        { id: 1, title: 'First todo', done: false, comments: [] },
-        { id: 2, title: 'Second todo', done: false, comments: [
-          { id: 1, message: 'First comment' },
-          { id: 2, message: 'Second comment' },
-        ] },
-      ]),
+      mockResponse(originalTodoList)
     );
-
     render(<App />);
 
     expect(await screen.findByText('First todo')).toBeInTheDocument();

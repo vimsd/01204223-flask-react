@@ -3,12 +3,15 @@ import { expect } from 'vitest'
 import TodoItem from '../TodoItem.jsx'
 import userEvent from '@testing-library/user-event'
 
+import App from '../App.jsx'
+
 const baseTodo = {             // ** TodoItem พื้นฐานสำหรับทดสอบ
   id: 1,
   title: 'Sample Todo',
   done: false,
   comments: [],
 };
+
 
 describe('TodoItem', () => {
   it('renders with no comments correctly', () => {
@@ -99,6 +102,27 @@ describe('TodoItem', () => {
 
     // assert
     expect(onAddNewComment).toHaveBeenCalledWith(baseTodo.id, 'New comment');
+  });
+
+  it('toggles done on a todo item', async () => {
+    const onToggleDone = vi.fn();
+
+    render(
+      <TodoItem
+        todo={baseTodo}
+        toggleDone={onToggleDone}
+      />
+    );
+
+    // ก่อน toggle ยังไม่เป็น done
+    const todoText = screen.getByText('Sample Todo');
+    expect(todoText).not.toHaveClass('done');
+
+    // กดปุ่ม Toggle
+    const toggleButton = screen.getByRole('button', { name: /toggle/i });
+    await userEvent.click(toggleButton);
+
+    expect(onToggleDone).toHaveBeenCalledWith(baseTodo.id);
   });
 
 });
