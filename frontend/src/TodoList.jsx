@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import './App.css'
 
+import { useAuth } from './context/AuthContext.jsx';
+import './App.css'
 import TodoItem from './TodoItem.jsx'
 
 function TodoList({apiUrl}) {
@@ -9,20 +10,22 @@ function TodoList({apiUrl}) {
   const [todoList, setTodoList] = useState([]);
   const [newTitle, setNewTitle] = useState("");
 
+  const { username, accessToken, logout } = useAuth();
+
   useEffect(() => {
     fetchTodoList();
-  }, []);
+  }, [username]);
 
   async function fetchTodoList() {
     try {
-      const response = await fetch(TODOLIST_API_URL);
-      if (!response.ok) { 
-        throw new Error('Network error');
-      }
-      const data = await response.json();
-      setTodoList(data);
+      const response = await fetch(TODOLIST_API_URL, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
     } catch (err) {
       //alert("Failed to fetch todo list from backend. Make sure the backend is running.");
+      setTodoList([]); 
     }
   }
 
@@ -111,6 +114,15 @@ function TodoList({apiUrl}) {
       <button onClick={() => {addNewTodo()}}>Add</button>
       <br/>
       <a href="/about">About</a>
+
+      <br/>
+      <a href="/login">Login</a> 
+
+      <br/>
+      {username && (
+        <a href="#" onClick={(e) => {e.preventDefault(); logout();}}>Logout</a> 
+      )}
+
     </>
   )
 }
